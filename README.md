@@ -1,199 +1,124 @@
-# Shadow AI Leak Detector — Pilot Prototype
+# ShadowTrace AI Leak Detector
 
-First experimental prototype for the research question: **can entity
-generalization preserve task utility better than placeholder redaction
-without increasing re-identification risk?**
+ShadowTrace is a research prototype for reducing sensitive information in prompts sent to AI assistants while preserving enough context for the task to remain useful. It compares entity generalization with conventional placeholder redaction and makes the privacy/utility trade-off visible in an interactive simulation and a reproducible synthetic benchmark.
 
-Status: pre-pilot. Every number is a measurement of the current code, not a
-claim. See the plan (`../plan.md`) for the full research design.
+**Live simulation:** [Open ShadowTrace](https://shadowtrace.vercel.app)  
+**Microsoft Edge extension:** Coming soon. The Microsoft Edge Add-ons link will be added when the extension is published.
 
-## What this is
+![ShadowTrace project preview](images/image.png)
 
-- A synthetic benchmark of 50 fictional enterprise prompts (SQL, code,
-  extraction, document Q&A, drafting) with labeled entities, executable
-  checkers, and a fixed train/test split.
-- Three transforms: `noop` (A, unprotected), `redact` (B, placeholders),
-  `generalize` (D, ladder rungs), plus `chain` (generalize → redact → hold).
-- Three leakage axes: span survival, attacker-independent attribute
-  distance, and closed-set re-identification (N-way choice over the
-  registry, chance = 1/N).
-- Utility from execution or exact match. Drafting gets structural proxies
-  only, reported separately, never pooled.
+## The problem
 
-## What this is not
+People use external AI assistants for work that may contain organization names, people, internal systems, locations, financial figures, identifiers, or secrets. Blocking every prompt can make an assistant unusable; replacing every sensitive value with `[REDACTED]` can remove information the task needs.
 
-- Not a product, not a Chrome extension (demo comes after the pilot gate).
-- The registry-match detector measures *transforms*, not real-world NER.
-- The lexical attacker is a *lower bound*. H2 is not settled by this pilot.
-- No differential privacy, no formal guarantees, no real data anywhere.
+ShadowTrace tests a middle path: replace sensitive entities with progressively broader descriptions, such as changing an organization name to "a technology company" or an internal system name to "an internal business system." The goal is not to claim that generalization is always safer. Descriptive context can itself reveal identity, so the project measures that risk alongside task utility.
 
-## Run it
+## What the project includes
 
-```bash
-pip install pyyaml requests pytest fastapi uvicorn   # pandas optional
-python -m pytest tests/ -q           # 32 unit tests
-python scripts/run_pilot.py --mode selftest        # harness calibration
-ollama pull qwen2.5:1.5b-instruct-q4_K_M           # or any instruct model
-python scripts/run_pilot.py --mode real --model qwen2.5:1.5b-instruct-q4_K_M
-```
+- **Interactive simulation:** inspect prompt detection, sanitized output, selected abstraction depth, model answer, and a leakage ledger.
+- **Four comparison methods:** `noop` (unchanged baseline), `redact` (placeholders), `generalize` (descriptive abstraction ladders), and `chain` (generalize with redaction and hold fallbacks).
+- **Synthetic benchmark:** fictional enterprise-style prompts across SQL, code, extraction, document Q&A, and drafting, with labeled entities and task-specific checkers where possible.
+- **Privacy measurements:** sensitive-span survival, attribute disclosure, closed-set re-identification against candidate entities, and whether an original value can be restored from its abstraction.
+- **Utility measurements:** execution, structural validation, or exact matching for supported task families. Free-text drafting is treated separately and is not pooled with executable tasks.
+- **Browser extension demo:** a Manifest V3 extension for ChatGPT, Claude, and Gemini that asks for review before sending a sanitized prompt. The Edge Add-ons store listing is not published yet.
 
-## Try it (simulation UI)
+![ShadowTrace prompt simulation and analysis](images/image2.png)
 
-```bash
-python scripts/serve.py              # localhost only → http://127.0.0.1:8137
-```
+## How a prompt is handled
 
-A monochrome chat simulation wired to the real pipeline: type a prompt,
-pick Original / Redact / Generalize / Chain plus an abstraction shift, and
-watch detection spans, the sanitized rewrite with rung depths, the local
-model's answer, and the leakage ledger (span survival, attribute
-disclosure, closed-set attacker credit, restorability). Same page shows the
-measured benchmark table, the Pareto frontier, and the public ladder
-codebook. Detection, rewriting, and answering all stay on this machine.
+1. Text is normalized and checked for entities from the fictional registry and for supported ad-hoc PII patterns.
+2. The selected method leaves the text unchanged, redacts detected spans, generalizes them using public type-specific ladders, or applies the fallback chain.
+3. The simulation shows the detected spans, rewritten prompt, substitutions, and leakage measurements.
+4. The answer model receives the prompt produced by the selected method. In the hosted simulation, the original prompt is sent to the ShadowTrace API for processing; when a hosted answer provider is configured, the transformed prompt is then sent to that provider.
 
-Chat input gets a second detector the benchmark does not use: ad-hoc PII
-shapes (emails, phones, passwords, employee IDs, API keys, Luhn-validated
-cards) are found by pattern plus context cue, minted per-text entities, and
-run through the same transforms and leakage ledger. Passwords and API keys
-generalize straight to placeholders — a secret has no safe descriptive
-middle. Registry dictionary behavior is unchanged; the pilot numbers are
-unaffected.
+The extension demo uses a local ShadowTrace backend and presents a review panel so a person can approve, edit, cancel, or choose to send the original. It is a demonstration, not a managed enterprise deployment.
 
-## Deploy: Render (API + UI), optionally Vercel (UI)
+## What we use
 
-Render alone is enough and needs no code changes — one web service:
+- **Backend and evaluation:** Python 3.10+, FastAPI, Pydantic, PyYAML, Requests, and pytest.
+- **Web interface:** HTML, CSS, and browser JavaScript, served through Vercel with API requests routed to the backend.
+- **Backend hosting:** Render for the live API and simulation service.
+- **Answer models:** Ollama can be used locally. The server also supports hosted providers selected with a `provider:model` setting; credentials belong in server environment variables, never in the repository or browser.
+- **Extension:** Chromium Manifest V3 APIs, with content scripts for supported chat sites and local storage for preferences and metadata-only audit entries.
+- **Data:** a fictional entity registry, synthetic prompts, versioned generalization ladders, and benchmark output under `data/`, `configs/`, and `results/`.
 
-| Setting | Value |
-|---|---|
-| Root Directory | `shadow-ai-leak-detector` |
-| Build Command | `pip install -r requirements.txt` |
-| Start Command | `python -m uvicorn server.app:app --host 0.0.0.0 --port $PORT` (not `serve.py`, which binds localhost) |
-| `PYTHON_VERSION` | `3.12.7` (or default if ≥3.10) |
-| `GROQ_API_KEY` | `gsk_...` (**Secret** env var) |
-| `SHADOWTRACE_MODEL` | `groq:llama-3.3-70b-versatile` |
+## Run locally
 
-Free-tier realities: sleep after inactivity (~50s cold start), ephemeral
-filesystem (caches reset on redeploy — fine for a project).
-
-For the Vercel + Render split (UI on Vercel's CDN, API on Render), the
-browser talks to one origin only: Vercel proxies `/api/*` to Render
-server-side, so there is no cross-origin traffic and no CORS involved.
-
-| Where | Setting | Value |
-|---|---|---|
-| `vercel.json` | `/api/:path*` destination | replace `REPLACE-WITH-YOUR-API` with your Render URL (public, not a secret) |
-| Vercel | Root Directory | `shadow-ai-leak-detector`, Framework Other |
-| Vercel | Build Command | empty — `api-config.js` defaults to same-origin, which is correct through the proxy |
-| Vercel | Output Directory | empty |
-| Vercel env | none | no env vars needed on Vercel at all |
-
-`GROQ_API_KEY` stays server-side on Render in every layout — the browser
-never holds it. One caveat: the proxy adds a Vercel→Render hop, so if chats
-ever fail opaquely at scale, that hop is suspect #1. The fallback is direct
-browser→Render: set `SHADOWTRACE_CORS_ORIGINS=https://<your-app>.vercel.app`
-on Render and inject the backend URL via the build command
-`printf 'window.SHADOWTRACE_API_BASE="%s";' "$SHADOWTRACE_API_BASE" >
-server/static/api-config.js` with `SHADOWTRACE_API_BASE` set to the Render
-URL (CORS allowlist echoes exact origins only; the extension never needs
-CORS — extension fetches bypass page CORS via host permissions).
-
-The extension is separate: its backend URL is still localhost-hardcoded
-(open follow-up).
-
-## Extension (demo)
-
-`extension/` is a Manifest V3 demo for ChatGPT, Claude, and Gemini. It does
-not sanitize by itself: on submit it captures the composer text, calls the
-local backend (`POST /api/sanitize`), and shows a review panel — diff with
-per-change reasons, untick-to-revert, manual edit, send-sanitized, cancel,
-or send-original (double-confirm, logged locally). Clean prompts pass
-through untouched. Detection and rewriting run on your machine; the chat
-site only ever receives what you approve.
-
-Install:
+From the repository root:
 
 ```bash
-python scripts/serve.py              # backend must be up first
+python -m venv .venv
 ```
 
-1. Open `chrome://extensions`, enable Developer mode, Load unpacked →
-   select `extension/`.
-2. Pin ShadowTrace, open its popup: set the default method, confirm the
-   backend shows connected.
-3. Type in any supported chat box and press Enter: the review panel appears.
-
-Limits, stated plainly: three sites on an allowlist (selectors break, expect
-maintenance); no coverage of API calls, other apps, or personal devices; a
-motivated user can disable it; reply re-hydration is off. Audit log holds
-metadata only (action, method, entity types) on the device.
-
-`selftest` uses a deterministic ceiling oracle: it proves the checkers
-(all noop ceilings must read 1.0) and labels every table NOT RESULTS.
-Only `--mode real` numbers may be reported, and only with the limitations
-block attached.
-
-Useful flags: `--limit N`, `--methods noop,redact`, `--families sql,extract`,
-`--repeats R`, `--config configs/pilot.yaml`.
-
-## Answer models: local default, free hosted options
-
-Ollama stays the default — private, reproducible, and the only option the
-privacy story leans on. For machines that can't run it, `--model` takes a
-provider spec (keys from the environment, never the repo):
+Activate the environment, then install the server requirements and test runner:
 
 ```bash
-python scripts/run_pilot.py --mode real --model groq:llama-3.3-70b-versatile
-#   needs GROQ_API_KEY — free tier, printed per-model limits, fastest
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
 
-python scripts/run_pilot.py --mode real --model openrouter:meta-llama/llama-3.3-70b-instruct:free
-#   needs OPENROUTER_API_KEY — 28+ :free models, no card, one key
+# macOS / Linux
+source .venv/bin/activate
 
-python scripts/run_pilot.py --mode real --model gemini:gemini-2.5-flash
-#   needs GEMINI_API_KEY — AI Studio free tier, volatile limits, check dashboard
+python -m pip install -r requirements.txt
+python -m pip install pytest
 ```
 
-Same spec works for the UI/chat server with no code change:
+Start the local simulation:
 
 ```bash
-SHADOWTRACE_MODEL="groq:llama-3.3-70b-versatile" python scripts/serve.py
+python scripts/serve.py
 ```
 
-Privacy contract, read before using any hosted model: the chat/sanitize
-paths send only **sanitized** text outward — that is the product thesis, and
-it is what makes a hosted answer model acceptable here. The pilot's `noop`
-baseline sends synthetic originals, fictional by construction and disclosed
-in every report. Free-tier data-use terms vary by provider and change often;
-check the current policy, and never point a hosted model at real secrets.
-The attacker stays local code under all options. Cached responses are keyed
-by model name, so switching providers never collides with old results.
+Open `http://127.0.0.1:8137`. The local default answer model is Ollama; install and start Ollama, then pull the default model if needed:
 
-## Layout
-
-```
-configs/   ladders.yaml (public codebook), pilot.yaml, depth_policy.yaml (later)
-data/      universe/registry.jsonl, prompts/pilot.jsonl  (generated, committed)
-src/shadowtrace/
-  universe.py        fictional registry + ground-truth attributes
-  prompts.py         benchmark construction in canonical token space
-  detect/            normalize, checksum rules, registry dictionary match
-  transform/         ladders, noop/redact/generalize/chain, verify
-  checkers/          sqlite, sandboxed code, exact text, structural proxies
-  evaluate/          leakage, closed-set attacker, answer models + cache,
-                     utility dispatch, drafting proxy, bootstrap metrics
-  report/            text + JSON rendering
-scripts/run_pilot.py the one command · scripts/serve.py the UI command
-server/    app.py (localhost FastAPI) + static/ (zero-dependency UI)
-tests/               32 unit tests
-results/             cache.jsonl, run.json, report.txt (generated)
+```bash
+ollama pull qwen2.5:1.5b-instruct-q4_K_M
 ```
 
-## Reading the report
+To use a hosted answer provider locally, set `SHADOWTRACE_MODEL` to a supported `provider:model` value and set that provider's API key in the environment. Never commit credentials.
 
-- `task_success` is absolute, per method, per family. Compare against the
-  `noop` ceiling printed at the top, not against 1.0.
-- `reid_rate` is mean fractional attacker credit; `chance` is 1/N.
-  Redact on code/sql sits above chance because task prose names the system
-  function ("billing service") — prose evidence, not transform leakage.
-- `restorable_frac` is the share of substitutions whose original identifier
-  is unambiguously recoverable. Placeholders never restore.
-- Interval widths are the finding at n=50. Overlapping intervals settle nothing.
+Run tests and the benchmark harness:
+
+```bash
+python -m pytest tests/ -q
+python scripts/run_pilot.py --mode selftest
+```
+
+`selftest` validates the harness with a deterministic oracle; its output is not a model result. A real evaluation requires `--mode real` and an available answer model. See `python scripts/run_pilot.py --help` for options.
+
+## Try the extension demo in Edge
+
+The extension is not yet listed in Microsoft Edge Add-ons. To load the current demo from this repository:
+
+1. Start the local backend with `python scripts/serve.py`.
+2. Open `edge://extensions` and enable **Developer mode**.
+3. Select **Load unpacked** and choose this repository's `extension/` directory.
+4. Open a supported chat site and review the proposed changes before sending.
+
+The extension currently targets ChatGPT, Claude, and Gemini and expects the local backend at `http://127.0.0.1:8137`. Site changes can break composer integration; the demo does not cover every AI client, API call, or other application. The store link will be added here after publication.
+
+## Privacy, scope, and limitations
+
+- The benchmark entities and prompts are synthetic; do not treat benchmark performance as proof of protection for real-world data.
+- Detection uses the project's registry and configured pattern-based checks. It is not general-purpose, production-grade PII recognition.
+- The live site sends submitted text to the ShadowTrace backend for processing. With a sanitizing method selected, the answer provider receives the transformed prompt; the Original/no-op baseline intentionally sends the prompt unchanged. Review provider retention and data-use policies before use, and do not submit real confidential information to this research deployment.
+- Generalization is not a formal privacy guarantee. An abstract description can still be identifying, and the project explicitly measures that possibility.
+- There is no differential privacy, security certification, organization policy layer, or guarantee against a motivated user bypassing the extension.
+- Self-test results are calibration output, not evidence for the research hypotheses. Report real benchmark results with their sample sizes, baselines, uncertainty, and limitations.
+
+## Repository map
+
+```text
+configs/                 Generalization ladders and pilot settings
+data/prompts/            Synthetic benchmark prompts
+data/universe/           Fictional entity registry
+extension/               Manifest V3 browser extension demo
+images/                  Project and simulation screenshots
+scripts/                 Local server and benchmark runner
+server/                  FastAPI app and static web interface
+src/shadowtrace/         Detection, transforms, evaluation, and reporting
+tests/                   Unit and integration tests
+results/                 Benchmark reports, run outputs, and local caches
+```
+
+For the longer research rationale and hypotheses, see [`../plan.md`](../plan.md).
