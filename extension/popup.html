@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  body { width: 280px; margin: 0; padding: 18px; font-family: Inter, system-ui, sans-serif; color: #000; }
+  h1 { font-size: 16px; font-weight: 400; margin: 0 0 4px; }
+  p { font-size: 11px; color: #6d6d6d; line-height: 1.5; margin: 0 0 12px; }
+  label { display: block; font-size: 11px; letter-spacing: 0.14em; margin: 12px 0 6px; }
+  select, input[type="range"] { width: 100%; }
+  select { font: inherit; font-size: 13px; padding: 6px; border: 1px solid #000; border-radius: 0; background: #fff; }
+  #status { font-size: 11px; letter-spacing: 0.08em; margin-top: 14px; padding-top: 10px; border-top: 1px solid #e4e4e4; }
+  #audit { font-size: 11px; color: #6d6d6d; margin-top: 6px; }
+  button { font-size: 12px; border: 1px solid #000; border-radius: 75px; background: #fff; padding: 6px 18px; cursor: pointer; margin-top: 8px; }
+</style>
+</head>
+<body>
+  <h1>shadowtrace</h1>
+  <p>Intercepts chat submits on this page. Detection + rewriting run on your machine via the local backend.</p>
+  <label>METHOD</label>
+  <select id="method">
+    <option value="generalize">Generalize (default)</option>
+    <option value="redact">Redact</option>
+    <option value="chain">Chain → fallback</option>
+    <option value="noop">Original (passthrough)</option>
+  </select>
+  <label>ABSTRACTION <span id="shiftLabel">default</span></label>
+  <input type="range" id="shift" min="-2" max="2" step="1" value="0">
+  <div id="status">checking backend…</div>
+  <div id="audit"></div>
+  <button id="clearAudit">Clear local audit log</button>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Pilot run configuration. Everything the run needs to reproduce itself.
+seed: 11
+registry_seed: 20260101
+warehouse_seed: 7
+
+mode: selftest        # selftest | real. real requires --model on the CLI.
+# pilot.yaml answer_model name must match the stub below
+answer_model: stub-oracle-v1
+temperature: 0.0
+model_seed: 42
+repeats: 1            # plan asks for >=3; pilot default is 1 for speed, stated as a limitation
+attacker_n: [10, 50]
+attacker_seed: 777
+
+methods: [noop, redact, generalize, chain]
+
+paths:
+  registry: data/universe/registry.jsonl
+  prompts: data/prompts/pilot.jsonl
+  cache: results/cache.jsonl
+  run: results/run.json
+  report: results/report.txt

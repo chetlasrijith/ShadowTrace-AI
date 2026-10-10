@@ -1,0 +1,16 @@
+[project]
+name = "shadowtrace"
+version = "0.1.0"
+description = "Pilot prototype: utility-preserving prompt sanitization benchmark"
+requires-python = ">=3.10"
+dependencies = ["pyyaml", "requests"]
+
+[project.optional-dependencies]
+dev = ["pytest", "pandas"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100

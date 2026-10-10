@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShadowTrace — Simulation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<nav class="nav on-dark" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">shadowtrace<sup style="font-size:9px">®</sup></div>
+    <div class="nav-links">
+      <a href="#simulation">SIMULATION</a>
+      <a href="#benchmark">BENCHMARK</a>
+      <a href="#method">METHOD</a>
+    </div>
+    <div class="nav-status" id="navStatus"><span class="dot"></span><span id="navStatusText">CONNECTING</span></div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-media" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="hero-kicker">UTILITY-PRESERVING PROMPT SANITIZATION — RESEARCH PROTOTYPE</div>
+    <h1 class="hero-title">Trace what leaks.</h1>
+    <p class="hero-sub">Employees paste confidential material into external AI tools. Blocking pushes them to bypass the tool; placeholders quietly degrade the answer. This simulation runs the real detection → generalization → answering pipeline locally, and shows you exactly what the external model learns.</p>
+    <div class="hero-actions">
+      <a class="btn-pill" href="#simulation">Open the simulation</a>
+      <a class="btn-pill" href="#benchmark">See the measurements</a>
+    </div>
+  </div>
+  <svg class="scroll-badge" viewBox="0 0 100 100" aria-hidden="true">
+    <defs><path id="circ" d="M 50,50 m -37,0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"></path></defs>
+    <text style="font-size:10.5px;letter-spacing:3.5px" fill="#fff"><textPath href="#circ">SCROLL DOWN · SCROLL DOWN · </textPath></text>
+  </svg>
+</header>
+
+<main>
+  <!-- ================= SIMULATION ================= -->
+  <section class="section" id="simulation">
+    <div class="section-index">01 — SIMULATION</div>
+    <h2 class="section-title">Send a prompt. Watch what survives.</h2>
+    <p class="section-lede">Type as an employee would — names, systems, figures included. Detection and rewriting run on this machine; only the sanitized text reaches the local answer model. Nothing here is sent anywhere else.</p>
+
+    <div class="method-row" role="group" aria-label="Sanitization method">
+      <button class="tag-pill" data-method="noop" aria-pressed="false">Original</button>
+      <button class="tag-pill" data-method="redact" aria-pressed="false">Redact</button>
+      <button class="tag-pill" data-method="generalize" aria-pressed="true">Generalize</button>
+      <button class="tag-pill" data-method="chain" aria-pressed="false">Chain ⏎ fallback</button>
+      <label class="rung-control">ABSTRACTION
+        <input type="range" id="rungShift" min="-2" max="2" step="1" value="0">
+        <span id="rungShiftLabel">default</span>
+      </label>
+    </div>
+
+    <div class="sim-grid">
+      <div>
+        <div class="thread" id="thread">
+          <div class="msg"><div class="msg-role">SYSTEM</div>
+            <div class="msg-body">No prompt yet. Pick a sample below, or write your own. Everything you type stays in this browser and on this machine.</div>
+          </div>
+        </div>
+        <div class="composer">
+          <textarea id="composer" placeholder="e.g. Write a query against our billing system for client Acme…"></textarea>
+          <div class="composer-bar">
+            <span class="composer-hint" id="composerHint">DETECTION + REWRITE ARE LOCAL</span>
+            <button class="btn-pill light solid" id="sendBtn">Send →</button>
+          </div>
+        </div>
+        <div class="samples" id="samples"><span class="samples-label">SAMPLE PROMPTS — FROM THE PILOT BENCHMARK</span></div>
+      </div>
+      <aside class="inspector" id="inspector" aria-live="polite">
+        <div class="insp-head"><span>PIPELINE INSPECTOR</span><span id="inspMethod">GENERALIZE</span></div>
+        <div class="stage"><div class="stage-title">AWAITING INPUT</div>
+          <p class="empty-note">Detection spans, the sanitized rewrite, the answer, and the leakage ledger will appear here after you send.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= BENCHMARK ================= -->
+  <section class="section" id="benchmark">
+    <div class="section-index">02 — BENCHMARK</div>
+    <h2 class="section-title">The measured trade-off.</h2>
+    <p class="section-lede">Fifty synthetic prompts, four methods, one local 1.5B answer model. Task success is absolute, measured by execution or exact match. Re-identification is a closed N-way choice over the fictional registry — chance is 1/N.</p>
+    <div id="benchWrap"><p class="empty-note" style="margin-top:28px">Loading measurements…</p></div>
+    <div class="pareto-wrap">
+      <h3>Privacy–utility frontier</h3>
+      <p>Task success (y) against closed-set re-identification rate (x). Up and left is better. The dashed line marks attacker chance.</p>
+      <svg id="pareto" viewBox="0 0 560 360" role="img" aria-label="Pareto curve"></svg>
+    </div>
+    <p class="caption" id="benchCaption"></p>
+  </section>
+
+  <!-- ================= METHOD ================= -->
+  <section class="section" id="method">
+    <div class="section-index">03 — METHOD</div>
+    <h2 class="section-title">Ladders, not black boxes.</h2>
+    <p class="section-lede">Each entity type climbs a public ladder from the exact value to a placeholder. The rung is chosen per entity type from a learned depth table; the ladder itself is assumed known to the attacker. What you see here is the whole codebook.</p>
+    <div class="ladder" id="ladder"></div>
+    <p class="caption">A middle rung can be <em>more</em> identifying than a placeholder — an unusual attribute combination may be unique in the registry. That is why re-identification, not span survival, is the headline metric.</p>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div><h4>Prototype</h4><p>Research demonstration, not a product.<br>No protection against deliberate evasion.<br>No coverage of non-text inputs.</p></div>
+    <div><h4>Local only</h4><p>Detection and rewriting run on this machine.<br>The answer model is local Ollama.<br>Synthetic data exclusively.</p></div>
+    <div><h4>No guarantees</h4><p>No differential privacy.<br>No formal privacy claim.<br>Attacker numbers are lower bounds.</p></div>
+  </div>
+  <div class="footer-base"><span>SHADOWTRACE — PILOT PROTOTYPE</span><span>MONOPO SAIGON THEME STUDY</span></div>
+</footer>
+
+<div class="toast" id="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

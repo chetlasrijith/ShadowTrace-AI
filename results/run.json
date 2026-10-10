@@ -1,0 +1,930 @@
+{
+ "meta": {
+  "mode": "selftest",
+  "answer_model": "stub-oracle-v1",
+  "repeats": 1,
+  "attacker_n": [
+   10,
+   50
+  ],
+  "n_entities": 140,
+  "n_prompts": 4,
+  "seed": 11,
+  "methods": [
+   "noop",
+   "generalize"
+  ],
+  "cache_hits": 8,
+  "cache_misses": 0,
+  "elapsed_s": 1.1
+ },
+ "ceilings": {
+  "sql": {
+   "n": 4,
+   "success": 1.0
+  }
+ },
+ "rows_executable": [
+  {
+   "method": "generalize",
+   "n": 4,
+   "task_success": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "n_utility": 4,
+   "structural_valid": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "span_leakage": {
+    "mean": 0.0,
+    "lo": 0.0,
+    "hi": 0.0,
+    "width": 0.0
+   },
+   "attribute_leakage": {
+    "mean": 0.583,
+    "lo": 0.583,
+    "hi": 0.583,
+    "width": 0.0
+   },
+   "reid_rate": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "reid_chance": 0.1,
+   "restorable_frac": {
+    "mean": 0.75,
+    "lo": 0.5,
+    "hi": 1.0,
+    "width": 0.5
+   },
+   "fpr": {
+    "mean": 0.0,
+    "lo": 0.0,
+    "hi": 0.0,
+    "width": 0.0
+   },
+   "held": 0
+  },
+  {
+   "method": "noop",
+   "n": 4,
+   "task_success": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "n_utility": 4,
+   "structural_valid": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "span_leakage": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "attribute_leakage": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "reid_rate": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "reid_chance": 0.1,
+   "restorable_frac": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "fpr": {
+    "mean": 0.0,
+    "lo": 0.0,
+    "hi": 0.0,
+    "width": 0.0
+   },
+   "held": 0
+  },
+  {
+   "method": "generalize",
+   "family": "sql",
+   "n": 4,
+   "task_success": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "n_utility": 4,
+   "structural_valid": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "span_leakage": {
+    "mean": 0.0,
+    "lo": 0.0,
+    "hi": 0.0,
+    "width": 0.0
+   },
+   "attribute_leakage": {
+    "mean": 0.583,
+    "lo": 0.583,
+    "hi": 0.583,
+    "width": 0.0
+   },
+   "reid_rate": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "reid_chance": 0.1,
+   "restorable_frac": {
+    "mean": 0.75,
+    "lo": 0.5,
+    "hi": 1.0,
+    "width": 0.5
+   },
+   "fpr": {
+    "mean": 0.0,
+    "lo": 0.0,
+    "hi": 0.0,
+    "width": 0.0
+   },
+   "held": 0
+  },
+  {
+   "method": "noop",
+   "family": "sql",
+   "n": 4,
+   "task_success": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "n_utility": 4,
+   "structural_valid": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "span_leakage": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "attribute_leakage": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "reid_rate": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "reid_chance": 0.1,
+   "restorable_frac": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0,
+    "width": 0.0
+   },
+   "fpr": {
+    "mean": 0.0,
+    "lo": 0.0,
+    "hi": 0.0,
+    "width": 0.0
+   },
+   "held": 0
+  }
+ ],
+ "rows_drafting": [],
+ "records": [
+  {
+   "pid": "sql_000",
+   "family": "sql",
+   "split": "train",
+   "method": "noop",
+   "rep": 0,
+   "executable": true,
+   "task_success": true,
+   "structural_valid": true,
+   "scored_by": "execution",
+   "utility_detail": {
+    "task_success": true,
+    "structural_valid": true,
+    "structural_error": "",
+    "run_error": "",
+    "task_success_raw": true,
+    "restorations_applied": 0,
+    "scored_by": "execution"
+   },
+   "span_leak": 1.0,
+   "attr_leak": 1.0,
+   "reid_rate_item": 1.0,
+   "reid_chance": 0.1,
+   "reid_extra": {
+    "50": {
+     "rate": 1.0,
+     "correct": 2,
+     "total": 2,
+     "chance": 0.03333333333333333
+    }
+   },
+   "reid_entities": [
+    {
+     "eid_true": "SYS_031",
+     "eid_pred": "SYS_031",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "SYS_031",
+       6.5
+      ],
+      [
+       "SYS_041",
+       1.0
+      ],
+      [
+       "SYS_034",
+       0.0
+      ]
+     ]
+    },
+    {
+     "eid_true": "ORG_001",
+     "eid_pred": "ORG_001",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "ORG_001",
+       5.5
+      ],
+      [
+       "ORG_006",
+       0.0
+      ],
+      [
+       "ORG_010",
+       0.0
+      ]
+     ]
+    }
+   ],
+   "restorable_frac": 1.0,
+   "fpr": 0.0,
+   "held": false,
+   "spans_found": 0,
+   "n_substitutions": 0,
+   "n_missed": 2,
+   "missed_eids": [
+    "SYS_031",
+    "ORG_001"
+   ],
+   "survivors": 2
+  },
+  {
+   "pid": "sql_000",
+   "family": "sql",
+   "split": "train",
+   "method": "generalize",
+   "rep": 0,
+   "executable": true,
+   "task_success": true,
+   "structural_valid": true,
+   "scored_by": "execution",
+   "utility_detail": {
+    "task_success": true,
+    "structural_valid": true,
+    "structural_error": "",
+    "run_error": "",
+    "task_success_raw": false,
+    "restorations_applied": 1,
+    "scored_by": "execution"
+   },
+   "span_leak": 0.0,
+   "attr_leak": 0.5833333333333333,
+   "reid_rate_item": 1.0,
+   "reid_chance": 0.1,
+   "reid_extra": {
+    "50": {
+     "rate": 1.0,
+     "correct": 2,
+     "total": 2,
+     "chance": 0.03333333333333333
+    }
+   },
+   "reid_entities": [
+    {
+     "eid_true": "SYS_031",
+     "eid_pred": "SYS_031",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "SYS_031",
+       11.5
+      ],
+      [
+       "SYS_041",
+       3.0
+      ],
+      [
+       "SYS_034",
+       0.0
+      ]
+     ]
+    },
+    {
+     "eid_true": "ORG_001",
+     "eid_pred": "ORG_001",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "ORG_001",
+       3.5
+      ],
+      [
+       "ORG_011",
+       1.0
+      ],
+      [
+       "ORG_026",
+       1.0
+      ]
+     ]
+    }
+   ],
+   "restorable_frac": 1.0,
+   "fpr": 0.0,
+   "held": false,
+   "spans_found": 3,
+   "n_substitutions": 3,
+   "n_missed": 0,
+   "missed_eids": [],
+   "survivors": 3
+  },
+  {
+   "pid": "sql_001",
+   "family": "sql",
+   "split": "train",
+   "method": "noop",
+   "rep": 0,
+   "executable": true,
+   "task_success": true,
+   "structural_valid": true,
+   "scored_by": "execution",
+   "utility_detail": {
+    "task_success": true,
+    "structural_valid": true,
+    "structural_error": "",
+    "run_error": "",
+    "task_success_raw": true,
+    "restorations_applied": 0,
+    "scored_by": "execution"
+   },
+   "span_leak": 1.0,
+   "attr_leak": 1.0,
+   "reid_rate_item": 1.0,
+   "reid_chance": 0.1,
+   "reid_extra": {
+    "50": {
+     "rate": 1.0,
+     "correct": 2,
+     "total": 2,
+     "chance": 0.03333333333333333
+    }
+   },
+   "reid_entities": [
+    {
+     "eid_true": "SYS_032",
+     "eid_pred": "SYS_032",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "SYS_032",
+       6.5
+      ],
+      [
+       "SYS_052",
+       1.0
+      ],
+      [
+       "SYS_034",
+       0.0
+      ]
+     ]
+    },
+    {
+     "eid_true": "ORG_008",
+     "eid_pred": "ORG_008",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "ORG_008",
+       5.5
+      ],
+      [
+       "ORG_005",
+       0.0
+      ],
+      [
+       "ORG_010",
+       0.0
+      ]
+     ]
+    }
+   ],
+   "restorable_frac": 1.0,
+   "fpr": 0.0,
+   "held": false,
+   "spans_found": 0,
+   "n_substitutions": 0,
+   "n_missed": 2,
+   "missed_eids": [
+    "SYS_032",
+    "ORG_008"
+   ],
+   "survivors": 2
+  },
+  {
+   "pid": "sql_001",
+   "family": "sql",
+   "split": "train",
+   "method": "generalize",
+   "rep": 0,
+   "executable": true,
+   "task_success": true,
+   "structural_valid": true,
+   "scored_by": "execution",
+   "utility_detail": {
+    "task_success": true,
+    "structural_valid": true,
+    "structural_error": "",
+    "run_error": "",
+    "task_success_raw": false,
+    "restorations_applied": 1,
+    "scored_by": "execution"
+   },
+   "span_leak": 0.0,
+   "attr_leak": 0.5833333333333333,
+   "reid_rate_item": 1.0,
+   "reid_chance": 0.1,
+   "reid_extra": {
+    "50": {
+     "rate": 1.0,
+     "correct": 2,
+     "total": 2,
+     "chance": 0.03333333333333333
+    }
+   },
+   "reid_entities": [
+    {
+     "eid_true": "SYS_032",
+     "eid_pred": "SYS_032",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "SYS_032",
+       11.5
+      ],
+      [
+       "SYS_052",
+       3.0
+      ],
+      [
+       "SYS_034",
+       0.0
+      ]
+     ]
+    },
+    {
+     "eid_true": "ORG_008",
+     "eid_pred": "ORG_008",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "ORG_008",
+       3.5
+      ],
+      [
+       "ORG_019",
+       1.0
+      ],
+      [
+       "ORG_005",
+       0.0
+      ]
+     ]
+    }
+   ],
+   "restorable_frac": 1.0,
+   "fpr": 0.0,
+   "held": false,
+   "spans_found": 3,
+   "n_substitutions": 3,
+   "n_missed": 0,
+   "missed_eids": [],
+   "survivors": 3
+  },
+  {
+   "pid": "sql_002",
+   "family": "sql",
+   "split": "train",
+   "method": "noop",
+   "rep": 0,
+   "executable": true,
+   "task_success": true,
+   "structural_valid": true,
+   "scored_by": "execution",
+   "utility_detail": {
+    "task_success": true,
+    "structural_valid": true,
+    "structural_error": "",
+    "run_error": "",
+    "task_success_raw": true,
+    "restorations_applied": 0,
+    "scored_by": "execution"
+   },
+   "span_leak": 1.0,
+   "attr_leak": 1.0,
+   "reid_rate_item": 1.0,
+   "reid_chance": 0.1,
+   "reid_extra": {
+    "50": {
+     "rate": 1.0,
+     "correct": 2,
+     "total": 2,
+     "chance": 0.03333333333333333
+    }
+   },
+   "reid_entities": [
+    {
+     "eid_true": "SYS_033",
+     "eid_pred": "SYS_033",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "SYS_033",
+       6.5
+      ],
+      [
+       "SYS_034",
+       0.0
+      ],
+      [
+       "SYS_040",
+       0.0
+      ]
+     ]
+    },
+    {
+     "eid_true": "ORG_015",
+     "eid_pred": "ORG_015",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "ORG_015",
+       5.5
+      ],
+      [
+       "ORG_005",
+       0.0
+      ],
+      [
+       "ORG_009",
+       0.0
+      ]
+     ]
+    }
+   ],
+   "restorable_frac": 1.0,
+   "fpr": 0.0,
+   "held": false,
+   "spans_found": 0,
+   "n_substitutions": 0,
+   "n_missed": 2,
+   "missed_eids": [
+    "SYS_033",
+    "ORG_015"
+   ],
+   "survivors": 2
+  },
+  {
+   "pid": "sql_002",
+   "family": "sql",
+   "split": "train",
+   "method": "generalize",
+   "rep": 0,
+   "executable": true,
+   "task_success": true,
+   "structural_valid": true,
+   "scored_by": "execution",
+   "utility_detail": {
+    "task_success": true,
+    "structural_valid": true,
+    "structural_error": "",
+    "run_error": "",
+    "task_success_raw": false,
+    "restorations_applied": 1,
+    "scored_by": "execution"
+   },
+   "span_leak": 0.0,
+   "attr_leak": 0.5833333333333333,
+   "reid_rate_item": 1.0,
+   "reid_chance": 0.1,
+   "reid_extra": {
+    "50": {
+     "rate": 0.75,
+     "correct": 2,
+     "total": 2,
+     "chance": 0.03333333333333333
+    }
+   },
+   "reid_entities": [
+    {
+     "eid_true": "SYS_033",
+     "eid_pred": "SYS_033",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "SYS_033",
+       11.5
+      ],
+      [
+       "SYS_034",
+       0.0
+      ],
+      [
+       "SYS_040",
+       0.0
+      ]
+     ]
+    },
+    {
+     "eid_true": "ORG_015",
+     "eid_pred": "ORG_015",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "ORG_015",
+       3.5
+      ],
+      [
+       "ORG_005",
+       1.0
+      ],
+      [
+       "ORG_026",
+       1.0
+      ]
+     ]
+    }
+   ],
+   "restorable_frac": 0.5,
+   "fpr": 0.0,
+   "held": false,
+   "spans_found": 3,
+   "n_substitutions": 3,
+   "n_missed": 0,
+   "missed_eids": [],
+   "survivors": 3
+  },
+  {
+   "pid": "sql_003",
+   "family": "sql",
+   "split": "train",
+   "method": "noop",
+   "rep": 0,
+   "executable": true,
+   "task_success": true,
+   "structural_valid": true,
+   "scored_by": "execution",
+   "utility_detail": {
+    "task_success": true,
+    "structural_valid": true,
+    "structural_error": "",
+    "run_error": "",
+    "task_success_raw": true,
+    "restorations_applied": 0,
+    "scored_by": "execution"
+   },
+   "span_leak": 1.0,
+   "attr_leak": 1.0,
+   "reid_rate_item": 1.0,
+   "reid_chance": 0.1,
+   "reid_extra": {
+    "50": {
+     "rate": 1.0,
+     "correct": 2,
+     "total": 2,
+     "chance": 0.03333333333333333
+    }
+   },
+   "reid_entities": [
+    {
+     "eid_true": "SYS_034",
+     "eid_pred": "SYS_034",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "SYS_034",
+       6.5
+      ],
+      [
+       "SYS_033",
+       0.0
+      ],
+      [
+       "SYS_040",
+       0.0
+      ]
+     ]
+    },
+    {
+     "eid_true": "ORG_022",
+     "eid_pred": "ORG_022",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "ORG_022",
+       5.5
+      ],
+      [
+       "ORG_005",
+       0.0
+      ],
+      [
+       "ORG_009",
+       0.0
+      ]
+     ]
+    }
+   ],
+   "restorable_frac": 1.0,
+   "fpr": 0.0,
+   "held": false,
+   "spans_found": 0,
+   "n_substitutions": 0,
+   "n_missed": 2,
+   "missed_eids": [
+    "SYS_034",
+    "ORG_022"
+   ],
+   "survivors": 2
+  },
+  {
+   "pid": "sql_003",
+   "family": "sql",
+   "split": "train",
+   "method": "generalize",
+   "rep": 0,
+   "executable": true,
+   "task_success": true,
+   "structural_valid": true,
+   "scored_by": "execution",
+   "utility_detail": {
+    "task_success": true,
+    "structural_valid": true,
+    "structural_error": "",
+    "run_error": "",
+    "task_success_raw": false,
+    "restorations_applied": 1,
+    "scored_by": "execution"
+   },
+   "span_leak": 0.0,
+   "attr_leak": 0.5833333333333333,
+   "reid_rate_item": 1.0,
+   "reid_chance": 0.1,
+   "reid_extra": {
+    "50": {
+     "rate": 0.75,
+     "correct": 1,
+     "total": 2,
+     "chance": 0.03333333333333333
+    }
+   },
+   "reid_entities": [
+    {
+     "eid_true": "SYS_034",
+     "eid_pred": "SYS_034",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "SYS_034",
+       11.5
+      ],
+      [
+       "SYS_052",
+       1.0
+      ],
+      [
+       "SYS_033",
+       0.0
+      ]
+     ]
+    },
+    {
+     "eid_true": "ORG_022",
+     "eid_pred": "ORG_022",
+     "correct": true,
+     "credit": 1.0,
+     "n_candidates": 10,
+     "chance": 0.1,
+     "scores_top3": [
+      [
+       "ORG_022",
+       3.5
+      ],
+      [
+       "ORG_010",
+       1.0
+      ],
+      [
+       "ORG_023",
+       1.0
+      ]
+     ]
+    }
+   ],
+   "restorable_frac": 0.5,
+   "fpr": 0.0,
+   "held": false,
+   "spans_found": 3,
+   "n_substitutions": 3,
+   "n_missed": 0,
+   "missed_eids": [],
+   "survivors": 3
+  }
+ ]
+}

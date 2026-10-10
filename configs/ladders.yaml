@@ -1,0 +1,98 @@
+# Generalization ladders. Every rung is public: an attacker is assumed to have
+# read this file (plan 6.2.1). Depth 0 is the exact canonical token.
+#
+# `reveal` lists the ground-truth attributes a rung discloses. It is used to
+# compute attacker-independent attribute distance and the k of each rung.
+#
+# `policy` gives the default max depth per (entity_type, task_family). Fitted
+# per-pair depths live in configs/depth_policy.yaml and override these.
+
+version: 2
+
+ladders:
+  org:
+    - {depth: 0, template: "{canonical}", reveal: []}
+    - {depth: 1, template: "a {size} {industry} firm in {region}", reveal: [industry, size, region]}
+    - {depth: 2, template: "a {size} {industry} firm", reveal: [industry, size]}
+    - {depth: 3, template: "a {industry} firm", reveal: [industry]}
+    - {depth: 4, template: "a company", reveal: []}
+    - {depth: 5, template: "[ORG]", reveal: []}
+
+  system:
+    - {depth: 0, template: "{canonical}", reveal: []}
+    - {depth: 1, template: "the {department} {function} system", reveal: [function, department]}
+    - {depth: 2, template: "the {function} system", reveal: [function]}
+    - {depth: 3, template: "an internal business system", reveal: []}
+    - {depth: 4, template: "[SYSTEM]", reveal: []}
+
+  person:
+    - {depth: 0, template: "{canonical}", reveal: []}
+    - {depth: 1, template: "an employee based in {region}", reveal: [region]}
+    - {depth: 2, template: "an employee", reveal: []}
+    - {depth: 3, template: "[PERSON]", reveal: []}
+
+  amount:
+    - {depth: 0, template: "{canonical}", reveal: [exact_value]}
+    - {depth: 1, template: "{value_rounded}", reveal: [exact_value]}
+    - {depth: 2, template: "about {magnitude}", reveal: [magnitude]}
+    - {depth: 3, template: "[AMOUNT]", reveal: []}
+
+  identifier:
+    - {depth: 0, template: "{canonical}", reveal: []}
+    - {depth: 1, template: "{id_prefix}-***-{id_suffix}", reveal: [scheme]}
+    - {depth: 2, template: "[ID]", reveal: []}
+
+  location:
+    - {depth: 0, template: "{canonical}", reveal: []}
+    - {depth: 1, template: "a facility in {region}", reveal: [region]}
+    - {depth: 2, template: "[LOCATION]", reveal: []}
+
+  # Ad-hoc PII ladders (free-form chat; entities minted per text, Section 7.4
+  # of the pilot notes). Depth 0 is the exact value. Secrets (password,
+  # api_key) have no descriptive middle: only masked shape, then placeholder.
+  email:
+    - {depth: 0, template: "{canonical}", reveal: [user, domain]}
+    - {depth: 1, template: "an email address at {domain}", reveal: [domain]}
+    - {depth: 2, template: "an email address", reveal: []}
+    - {depth: 3, template: "[EMAIL]", reveal: []}
+
+  phone:
+    - {depth: 0, template: "{canonical}", reveal: [last4]}
+    - {depth: 1, template: "a phone number ending in {last4}", reveal: [last4]}
+    - {depth: 2, template: "a phone number", reveal: []}
+    - {depth: 3, template: "[PHONE]", reveal: []}
+
+  password:
+    - {depth: 0, template: "{canonical}", reveal: [value_kind]}
+    - {depth: 1, template: "a {value_kind} password ({secret_len} characters)", reveal: [value_kind]}
+    - {depth: 2, template: "[PASSWORD]", reveal: []}
+
+  employee_id:
+    - {depth: 0, template: "{canonical}", reveal: [value_kind]}
+    - {depth: 1, template: "a {value_kind} employee ID", reveal: [value_kind]}
+    - {depth: 2, template: "[EMPLOYEE_ID]", reveal: []}
+
+  api_key:
+    - {depth: 0, template: "{canonical}", reveal: [scheme]}
+    - {depth: 1, template: "an API key ({secret_len} characters)", reveal: [scheme]}
+    - {depth: 2, template: "[API_KEY]", reveal: []}
+
+  card:
+    - {depth: 0, template: "{canonical}", reveal: [last4, scheme]}
+    - {depth: 1, template: "a card ending in {last4}", reveal: [last4]}
+    - {depth: 2, template: "[CARD]", reveal: []}
+
+# Default depth cap per entity type when no fitted policy entry exists.
+default_depth:
+  org: 2
+  system: 1
+  person: 1
+  amount: 2
+  identifier: 1
+  location: 1
+  email: 1
+  phone: 1
+  password: 2
+  employee_id: 1
+  api_key: 2
+  card: 1
