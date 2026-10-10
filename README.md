@@ -2,7 +2,7 @@
 
 ShadowTrace is a research prototype for reducing sensitive information in prompts sent to AI assistants while preserving enough context for the task to remain useful. It compares entity generalization with conventional placeholder redaction and makes the privacy/utility trade-off visible in an interactive simulation and a reproducible synthetic benchmark.
 
-**Live simulation:** [Open ShadowTrace](https://shadowtrace.vercel.app)  
+**Live simulation:** [Open ShadowTrace](https://shadow-two-jade.vercel.app)  
 **Microsoft Edge extension:** Coming soon. The Microsoft Edge Add-ons link will be added when the extension is published.
 
 ![ShadowTrace project preview](images/image.png)
@@ -90,12 +90,21 @@ python scripts/run_pilot.py --mode selftest
 
 The extension is not yet listed in Microsoft Edge Add-ons. To load the current demo from this repository:
 
-1. Start the local backend with `python scripts/serve.py`.
-2. Open `edge://extensions` and enable **Developer mode**.
-3. Select **Load unpacked** and choose this repository's `extension/` directory.
+1. Open `edge://extensions` and enable **Developer mode**.
+2. Select **Load unpacked** and choose this repository's `extension/` directory.
+3. Open the popup: the backend defaults to the Render deployment. To use a
+   local backend instead, set the URL back to `http://127.0.0.1:8137`
+   (running `python scripts/serve.py`) — with localhost, originals never
+   leave the machine.
 4. Open a supported chat site and review the proposed changes before sending.
 
-The extension currently targets ChatGPT, Claude, and Gemini and expects the local backend at `http://127.0.0.1:8137`. Site changes can break composer integration; the demo does not cover every AI client, API call, or other application. The store link will be added here after publication.
+The extension currently targets ChatGPT, Claude, and Gemini. With the
+default remote backend, your ORIGINAL text travels over TLS to that server
+for detection and rewriting; only the sanitized text goes onward to the
+chat site. Site changes can break composer integration; the demo does not
+cover every AI client, API call, or other application. The store link will
+be added here after publication. Expect a cold-start delay on the first
+submit after idle (Render sleeps).
 
 ## Privacy, scope, and limitations
 

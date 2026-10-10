@@ -24,6 +24,9 @@ ENV/
 results/cache.jsonl
 results/chat_cache.jsonl
 
+*.zip
+
+
 # Operating system files
 .DS_Store
 Thumbs.db

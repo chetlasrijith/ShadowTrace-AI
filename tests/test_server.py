@@ -84,10 +84,10 @@ def test_cors_helper_defaults_to_same_origin(monkeypatch):
     assert cors_origins_from_env() == []
     monkeypatch.setenv(
         "SHADOWTRACE_CORS_ORIGINS",
-        "https://shadowtrace.vercel.app, https://www.example.com/ ",
+        "https://shadow-two-jade.vercel.app, https://www.example.com/ ",
     )
     assert cors_origins_from_env() == [
-        "https://shadowtrace.vercel.app", "https://www.example.com",
+        "https://shadow-two-jade.vercel.app", "https://www.example.com",
     ]
 
 
