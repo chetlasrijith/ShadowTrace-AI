@@ -1,6 +1,12 @@
 /* ShadowTrace simulation client. No framework, no build. */
 
 const $ = (sel) => document.querySelector(sel);
+
+/* Split deployment: Vercel serves this file, Render answers the API.
+   window.SHADOWTRACE_API_BASE is injected by static/api-config.js
+   (same-origin default ""). All API calls go through api(). */
+const API_BASE = (window.SHADOWTRACE_API_BASE || "").replace(/\/+$/, "");
+const api = (path) => API_BASE + path;
 const state = { method: "generalize", rungShift: 0, busy: false };
 
 const SHIFT_LABELS = { "-2": "near-exact", "-1": "shallow", "0": "default", "1": "deep", "2": "near-placeholder" };
@@ -27,9 +33,9 @@ window.addEventListener("scroll", navTheme, { passive: true });
 
 async function health() {
   try {
-    const r = await fetch("/api/health");
+    const r = await fetch(api("/api/health"));
     const j = await r.json();
-    $("#navStatusText").textContent = "LOCAL · " + j.entities + " ENTITIES";
+    $("#navStatusText").textContent = "CONNECTED · " + j.entities + " ENTITIES";
     $("#navStatus").classList.add("live");
   } catch {
     $("#navStatusText").textContent = "SERVER UNREACHABLE";
@@ -53,7 +59,7 @@ $("#rungShift").addEventListener("input", (e) => {
 /* ---------- samples ---------- */
 async function loadSamples() {
   try {
-    const r = await fetch("/api/samples");
+    const r = await fetch(api("/api/samples"));
     const j = await r.json();
     const wrap = $("#samples");
     j.samples.forEach((s) => {
@@ -169,7 +175,7 @@ async function send() {
   thread.appendChild(pending);
 
   try {
-    const r = await fetch("/api/chat", {
+    const r = await fetch(api("/api/chat"), {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text, method: state.method, rung_shift: state.rungShift }),
     });
@@ -204,7 +210,7 @@ $("#composer").addEventListener("keydown", (e) => {
 async function loadBenchmark() {
   const wrap = $("#benchWrap");
   try {
-    const r = await fetch("/api/benchmark");
+    const r = await fetch(api("/api/benchmark"));
     const j = await r.json();
     if (!j.available) { wrap.innerHTML = `<p class="empty-note" style="margin-top:28px">No measurements yet — run the pilot first.</p>`; return; }
     const rows = j.rows;
@@ -256,7 +262,7 @@ function drawPareto(rows) {
 /* ---------- ladders ---------- */
 async function loadLadders() {
   try {
-    const r = await fetch("/api/ladders");
+    const r = await fetch(api("/api/ladders"));
     const j = await r.json();
     $("#ladder").innerHTML = Object.entries(j.ladders).map(([etype, rungs]) => `
       <div class="ladder-type"><div class="etype">${esc(etype.toUpperCase())} · DEFAULT DEPTH ${j.default_depth[etype] ?? "—"}</div>

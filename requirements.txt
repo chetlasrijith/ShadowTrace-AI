@@ -1,0 +1,7 @@
+# Render / production install. Pinned floor versions, no upper caps for a project.
+# Ollama intentionally excluded: production uses hosted answer models.
+fastapi>=0.115
+uvicorn>=0.34
+pyyaml>=6.0
+requests>=2.32
+# pydantic ships with fastapi; pytest only for CI, not the service.

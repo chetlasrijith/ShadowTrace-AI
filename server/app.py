@@ -68,6 +68,32 @@ answer_cache = ResponseCache(ROOT / "results" / "chat_cache.jsonl")
 app = FastAPI(title=APP_TITLE)
 
 
+def cors_origins_from_env() -> list[str]:
+    """Allowed browser origins for the Vercel split. Empty = same-origin only.
+
+    Local dev and Render-only deployments send no CORS headers at all, which
+    is the strictest correct posture. Set SHADOWTRACE_CORS_ORIGINS to a
+    comma-separated allowlist (exact origins, no wildcards with credentials
+    needed here since we send no cookies) only when a different origin
+    serves the frontend.
+    """
+    raw = os.environ.get("SHADOWTRACE_CORS_ORIGINS", "")
+    return [o.strip().rstrip("/") for o in raw.split(",") if o.strip()]
+
+
+_CORS_ORIGINS = cors_origins_from_env()
+if _CORS_ORIGINS:
+    from fastapi.middleware.cors import CORSMiddleware
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_CORS_ORIGINS,
+        allow_methods=["GET", "POST"],
+        allow_headers=["Content-Type"],
+        max_age=600,
+    )
+
+
 # ---------------------------------------------------------------- models
 
 class ChatRequest(BaseModel):

@@ -7,7 +7,9 @@ run offline in milliseconds against the local app object.
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "server"))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "server"))
+ROOT_STATIC = ROOT / "server" / "static"
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -73,3 +75,27 @@ def test_ladders_endpoint_lists_adhoc_types():
     assert set(r.json()["ladders"]) >= {
         "email", "phone", "password", "employee_id", "api_key", "card",
     }
+
+
+def test_cors_helper_defaults_to_same_origin(monkeypatch):
+    from app import cors_origins_from_env
+
+    monkeypatch.delenv("SHADOWTRACE_CORS_ORIGINS", raising=False)
+    assert cors_origins_from_env() == []
+    monkeypatch.setenv(
+        "SHADOWTRACE_CORS_ORIGINS",
+        "https://shadowtrace.vercel.app, https://www.example.com/ ",
+    )
+    assert cors_origins_from_env() == [
+        "https://shadowtrace.vercel.app", "https://www.example.com",
+    ]
+
+
+def test_frontend_routes_all_api_calls_through_base():
+    src = (ROOT_STATIC / "app.js").read_text(encoding="utf-8")
+    assert "window.SHADOWTRACE_API_BASE" in src
+    assert 'fetch("/api/' not in src  # no bare same-origin calls left
+    cfg = (ROOT_STATIC / "api-config.js").read_text(encoding="utf-8")
+    assert 'window.SHADOWTRACE_API_BASE = ""' in cfg
+    html = (ROOT_STATIC / "index.html").read_text(encoding="utf-8")
+    assert "api-config.js" in html

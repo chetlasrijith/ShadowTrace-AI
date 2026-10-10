@@ -59,6 +59,47 @@ generalize straight to placeholders — a secret has no safe descriptive
 middle. Registry dictionary behavior is unchanged; the pilot numbers are
 unaffected.
 
+## Deploy: Render (API + UI), optionally Vercel (UI)
+
+Render alone is enough and needs no code changes — one web service:
+
+| Setting | Value |
+|---|---|
+| Root Directory | `shadow-ai-leak-detector` |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `python -m uvicorn server.app:app --host 0.0.0.0 --port $PORT` (not `serve.py`, which binds localhost) |
+| `PYTHON_VERSION` | `3.12.7` (or default if ≥3.10) |
+| `GROQ_API_KEY` | `gsk_...` (**Secret** env var) |
+| `SHADOWTRACE_MODEL` | `groq:llama-3.3-70b-versatile` |
+
+Free-tier realities: sleep after inactivity (~50s cold start), ephemeral
+filesystem (caches reset on redeploy — fine for a project).
+
+For the Vercel + Render split (UI on Vercel's CDN, API on Render), the
+browser talks to one origin only: Vercel proxies `/api/*` to Render
+server-side, so there is no cross-origin traffic and no CORS involved.
+
+| Where | Setting | Value |
+|---|---|---|
+| `vercel.json` | `/api/:path*` destination | replace `REPLACE-WITH-YOUR-API` with your Render URL (public, not a secret) |
+| Vercel | Root Directory | `shadow-ai-leak-detector`, Framework Other |
+| Vercel | Build Command | empty — `api-config.js` defaults to same-origin, which is correct through the proxy |
+| Vercel | Output Directory | empty |
+| Vercel env | none | no env vars needed on Vercel at all |
+
+`GROQ_API_KEY` stays server-side on Render in every layout — the browser
+never holds it. One caveat: the proxy adds a Vercel→Render hop, so if chats
+ever fail opaquely at scale, that hop is suspect #1. The fallback is direct
+browser→Render: set `SHADOWTRACE_CORS_ORIGINS=https://<your-app>.vercel.app`
+on Render and inject the backend URL via the build command
+`printf 'window.SHADOWTRACE_API_BASE="%s";' "$SHADOWTRACE_API_BASE" >
+server/static/api-config.js` with `SHADOWTRACE_API_BASE` set to the Render
+URL (CORS allowlist echoes exact origins only; the extension never needs
+CORS — extension fetches bypass page CORS via host permissions).
+
+The extension is separate: its backend URL is still localhost-hardcoded
+(open follow-up).
+
 ## Extension (demo)
 
 `extension/` is a Manifest V3 demo for ChatGPT, Claude, and Gemini. It does
