@@ -274,11 +274,30 @@ class GeminiAnswerModel(AnswerModel):
             raise ValueError(f"unexpected Gemini response: {str(data)[:300]}")
 
 
+KNOWN_PROVIDERS = ("ollama", "gemini", *tuple(PROVIDER_DEFAULTS))
+
+_warned_specs: set[str] = set()
+
+
+def spec_kind(spec: str) -> str:
+    """'ollama-local' or a hosted provider name. Never raises; used for logs."""
+    provider, sep, _ = spec.partition(":")
+    if sep and provider in KNOWN_PROVIDERS and provider != "ollama":
+        return provider
+    return "ollama-local"
+
+
 def build_answer_model(spec: str, temperature: float = 0.0, seed: int = 42,
                        timeout_s: float = 120.0, **overrides) -> AnswerModel:
     """Build an answer model from a short spec. Shared by pilot + server.
 
-    - "just-a-name" or "ollama:name"  -> local Ollama (default, private)
+    - "ollama:name" or any spec WITHOUT a known provider prefix
+      -> local Ollama (default, private). Ollama names legitimately contain
+      colons ("qwen2.5:1.5b-...") and slashes, so an unknown prefix cannot
+      fail fast — but a registry-style "org/model" spec almost always means
+      a forgotten hosted prefix, and that gets a loud one-per-process
+      warning pointing at the fix (this exact silence caused a production
+      incident: Render fell back to localhost:11434).
     - "groq:model-id"                -> Groq free tier (GROQ_API_KEY)
     - "openrouter:org/model:free"    -> OpenRouter free models (OPENROUTER_API_KEY)
     - "together:model-id"            -> Together (TOGETHER_API_KEY)
@@ -286,16 +305,28 @@ def build_answer_model(spec: str, temperature: float = 0.0, seed: int = 42,
     - "pollinations:model-id"        -> zero-key fallback, not for evaluation
     - "gemini:model-id"              -> AI Studio free tier (GEMINI_API_KEY)
     """
-    provider, _, model = spec.partition(":")
-    if not model or provider == "ollama":
-        return OllamaAnswerModel(model or provider, temperature, seed,
-                                 timeout_s, **overrides)
-    if provider == "gemini":
-        return GeminiAnswerModel(model, temperature, timeout_s, **overrides)
-    if provider in PROVIDER_DEFAULTS or "base_url" in overrides:
+    import sys
+
+    provider, sep, model = spec.partition(":")
+    if sep and provider in KNOWN_PROVIDERS and provider != "ollama":
+        if provider == "gemini":
+            return GeminiAnswerModel(model, temperature, timeout_s, **overrides)
         return OpenAICompatibleAnswerModel(model, provider, temperature, seed,
                                            timeout_s, **overrides)
-    raise ValueError(f"unknown model spec {spec!r}")
+    if "base_url" in overrides:  # fully custom OpenAI-compatible endpoint
+        return OpenAICompatibleAnswerModel(model or spec, "custom", temperature,
+                                           seed, timeout_s, **overrides)
+    if provider == "ollama":
+        spec = model
+    if ("/" in spec or (sep and provider not in ("ollama",))) and spec not in _warned_specs:
+        _warned_specs.add(spec)
+        print(f"[shadowtrace] model spec {spec!r} has no known provider prefix; "
+              f"treating as a LOCAL Ollama model name. If you meant a hosted "
+              f"model, use provider:model - groq:..., openrouter:..., "
+              f"together:..., cerebras:..., gemini:... (key from environment).",
+              file=sys.stderr)
+    name = spec if provider != "ollama" else model
+    return OllamaAnswerModel(name, temperature, seed, timeout_s, **overrides)
 
 
 class ResponseCache:

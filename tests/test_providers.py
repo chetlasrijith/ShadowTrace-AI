@@ -35,12 +35,24 @@ def test_build_answer_model_specs(monkeypatch):
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
     assert isinstance(A.build_answer_model("mymodel"), A.OllamaAnswerModel)
     assert isinstance(A.build_answer_model("ollama:mymodel"), A.OllamaAnswerModel)
+    # Ollama names legitimately contain colons: whole spec stays the name
+    m = A.build_answer_model("qwen2.5:1.5b-instruct-q4_K_M")
+    assert isinstance(m, A.OllamaAnswerModel) and m.model == "qwen2.5:1.5b-instruct-q4_K_M"
     assert isinstance(A.build_answer_model("gemini:gemini-2.5-flash"), A.GeminiAnswerModel)
     m = A.build_answer_model("openrouter:meta-llama/llama-3.3-70b-instruct:free")
     assert isinstance(m, A.OpenAICompatibleAnswerModel)
     assert m.base_url == "https://openrouter.ai/api/v1"
-    with pytest.raises(ValueError):
-        A.build_answer_model("nonsense-provider-xyz:model")
+    # registry-style spec without a provider prefix falls back to Ollama LOUDLY
+    import io
+    from contextlib import redirect_stderr
+    buf = io.StringIO()
+    with redirect_stderr(buf):
+        m2 = A.build_answer_model("qwen/qwen3.8-27b")
+    assert isinstance(m2, A.OllamaAnswerModel)
+    assert "no known provider prefix" in buf.getvalue()
+    assert A.spec_kind("groq:llama-3.3-70b-versatile") == "groq"
+    assert A.spec_kind("qwen/qwen3.8-27b") == "ollama-local"
+    assert A.spec_kind("qwen2.5:1.5b-instruct-q4_K_M") == "ollama-local"
 
 
 def test_openai_compatible_shape(monkeypatch):

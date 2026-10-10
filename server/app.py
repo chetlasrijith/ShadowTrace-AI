@@ -35,7 +35,7 @@ from shadowtrace.detect.normalize import normalize  # noqa: E402
 from shadowtrace.detect.registry import detect_all, surface_forms  # noqa: E402
 from shadowtrace.evaluate.attacker import attack_all_substitutions  # noqa: E402
 from shadowtrace.evaluate.answers import (  # noqa: E402
-    CachedModel, ResponseCache, build_answer_model,
+    CachedModel, ResponseCache, build_answer_model, spec_kind,
 )
 from shadowtrace.evaluate.leakage import (  # noqa: E402
     attribute_leakage, false_positive_rate, span_leakage,
@@ -55,6 +55,9 @@ APP_TITLE = "ShadowTrace — simulation"
 # text through the chat/sanitize paths; see answers.py privacy contract.
 CHAT_MODEL = os.environ.get("SHADOWTRACE_MODEL", "qwen2.5:1.5b-instruct-q4_K_M")
 CHAT_TEMPERATURE = 0.7
+
+print(f"[shadowtrace] answer backend: {spec_kind(CHAT_MODEL)} "
+      f"({CHAT_MODEL})")
 
 registry = Registry.load(ROOT / "data" / "universe" / "registry.jsonl")
 ladders = Ladders.load(ROOT / "configs" / "ladders.yaml")
