@@ -5,7 +5,7 @@
     { "source": "/static/:path*", "destination": "/server/static/:path*" },
     {
       "source": "/api/:path*",
-      "destination": "https://REPLACE-WITH-YOUR-API.onrender.com/api/:path*"
+      "destination": "https://shadowtrace-ai-gwho.onrender.com/api/:path*"
     }
   ],
   "headers": [
